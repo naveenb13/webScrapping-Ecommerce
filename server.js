@@ -2,7 +2,8 @@ const express = require("express")
 const cors = require("cors")
 const mongodb = require("mongodb");
 const mongoClient = mongodb.MongoClient;
-const URL = "mongodb+srv://naveenb:naveenasif13@cluster0.hiubako.mongodb.net/?retryWrites=true&w=majority";
+const dotenv = require("dotenv").config()
+const URL = process.env.DB;
 const DB = "web_scraping"
 
 const app = express();
