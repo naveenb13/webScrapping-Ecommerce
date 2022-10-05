@@ -207,16 +207,16 @@ app.post("/login", async function (req, res) {
                 let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "1m"});
                 res.json({token});
             } else {
-                res.json({ message: "Email/Password is incorrect" });
+                res.status(401).json({ message: "Email/Password is incorrect" });
             }
         } else {
             res.status(401).json({ message: "Email/Password is incorrect" });
         }
-        
+
         await connection.close()
     } 
     catch (error) {
-        res.json({ message: "Something went wrong" });
+        res.status(500).json({ message: "Something went wrong" });
     }
 });
 
