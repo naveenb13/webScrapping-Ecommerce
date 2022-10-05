@@ -111,7 +111,7 @@ app.post("/login", async function (req, res) {
         if (user) {
             let compare = await bcrypt.compare(req.body.password, user.password);
             if (compare) {
-                let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "10m"});
+                let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "1h"});
                 res.json({token});
             } else {
                 res.status(401).json({ message: "Email/Password is incorrect" });
@@ -130,3 +130,46 @@ app.post("/login", async function (req, res) {
 
 
 app.listen(process.env.PORT || 3001);
+
+
+
+
+
+
+// Note - Below is the code I typed for web scraping, but during the query support it was told wrong but I tried somehow the below code.... 
+
+// If this is wrong, I will learn soon the write method.$
+
+
+// url = "https://www.amazon.in/s?k=iphone&rh=n%3A1389401031&ref=nb_sb_noss"
+
+
+// request(url, (error,response,html) => {
+//     if(!error && response.statusCode==200){
+//         const $ = cheerio.load(html);
+
+//         $('.sg-row').each((i,el) => {
+//             const title = $(el)
+//             .find('h2')
+//             .text();
+//             const rating = $(el)
+//             .find('.a-icon')
+//             .text();
+//             const image = $(el)
+//             .find('img')
+//             .attr('src');
+//             const discountPrice = $(el)
+//             .find('.a-price-whole')
+//             .text();
+//             const price = $(el)
+//             .find('.a-text-price')
+//             .children('span')
+//             .next()
+//             .text();
+            
+//             console.log(title, rating , image , discountPrice , price);
+//         })
+
+        
+//     }
+// });
