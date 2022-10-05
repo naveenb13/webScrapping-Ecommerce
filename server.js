@@ -195,28 +195,26 @@ app.post("/login", async function (req, res) {
 
     try {
 
-        const connection = await mongoClient.connect(URL)
+        const connection = await mongoClient.connect(URL);
 
-        const db = connection.db(DB)
+        const db = connection.db(DB);
 
-        let user = await db.collection("users").findOne({ email: req.body.email })
+        let user = await db.collection("users").findOne({ email: req.body.email });
 
         if (user) {
-            let compare = await bcrypt.compare(req.body.password, user.password)
+            let compare = await bcrypt.compare(req.body.password, user.password);
             if (compare) {
-                let token = jwt.sign({ _id: user._id }, process.env.SECRET, { expiresIn: "1m" });
-                res.json({ token })
+                let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "1m",});
+                res.json({token});
             } else {
-                res.json({ message: "Email/Password is incorrect" })
+                res.json({ message: "Email/Password is incorrect" });
             }
         } else {
-            res.status(401).json({ message: "Email/Password is incorrect" })
+            res.status(401).json({ message: "Email/Password is incorrect" });
         }
-
-        await connection.close()
-
-    } catch (error) {
-        res.status(500).json({ message: "Something went wrong" })
+    } 
+    catch (error) {
+        res.json({ message: "Something went wrong" });
     }
 });
 
