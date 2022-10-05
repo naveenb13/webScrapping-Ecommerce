@@ -120,7 +120,7 @@ let authenticate = (req, res, next) => {
     }
 }
 
-app.get("/iphone", async function (req, res) {
+app.get("/iphone",authenticate, async function (req, res) {
 
 
     try {
@@ -142,7 +142,7 @@ app.get("/iphone", async function (req, res) {
     // res.json(users);
 });
 
-app.post("/iphone", async function (req, res) {
+app.post("/iphone",authenticate, async function (req, res) {
 
     try {
         const connection = await mongoClient.connect(URL)
@@ -212,6 +212,8 @@ app.post("/login", async function (req, res) {
         } else {
             res.status(401).json({ message: "Email/Password is incorrect" });
         }
+        
+        await connection.close()
     } 
     catch (error) {
         res.json({ message: "Something went wrong" });
