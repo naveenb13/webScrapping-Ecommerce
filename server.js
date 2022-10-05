@@ -104,21 +104,21 @@ app.use(cors({
 //     }
 // ]
 
-// let authenticate = (req, res, next) => {
-//     if (req.headers.authorization) {
-//         try {
-//             let decode = jwt.verify(req.headers.authorization, process.env.SECRET)
-//             if (decode) {
-//                 next()
-//             }
-//         } catch (error) {
-//             res.status(401).json({ message: "Unauthorized" })
-//         }
+let authenticate = (req, res, next) => {
+    if (req.headers.authorization) {
+        try {
+            let decode = jwt.verify(req.headers.authorization, process.env.SECRET)
+            if (decode) {
+                next()
+            }
+        } catch (error) {
+            res.status(401).json({ message: "Unauthorized" })
+        }
 
-//     } else {
-//         res.status(401).json({ message: "Unauthorized" })
-//     }
-// }
+    } else {
+        res.status(401).json({ message: "Unauthorized" })
+    }
+}
 
 app.get("/iphone", async function (req, res) {
 
@@ -193,22 +193,28 @@ app.post("/register", async function (req, res) {
 
 app.post("/login", async function (req, res) {
 
-    const connection = await mongoClient.connect(URL);
+    try {
 
-    const db = connection.db(DB);
+        const connection = await mongoClient.connect(URL);
 
-    let user = await db.collection("users").findOne({ email: req.body.email });
+        const db = connection.db(DB);
 
-    if (user) {
-        let compare = await bcrypt.compare(req.body.password, user.password);
-        if (compare) {
-            let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "1m",});
-            res.json({token});
+        let user = await db.collection("users").findOne({ email: req.body.email });
+
+        if (user) {
+            let compare = await bcrypt.compare(req.body.password, user.password);
+            if (compare) {
+                let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "1m"});
+                res.json({token});
+            } else {
+                res.json({ message: "Email/Password is incorrect" });
+            }
         } else {
-            res.json({ message: "Email/Password is incorrect" });
+            res.status(401).json({ message: "Email/Password is incorrect" });
         }
-    } else {
-        res.status(401).json({ message: "Email/Password is incorrect" });
+    } 
+    catch (error) {
+        res.json({ message: "Something went wrong" });
     }
 });
 
