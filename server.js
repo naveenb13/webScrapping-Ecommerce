@@ -1,6 +1,8 @@
 const express = require("express")
 const cors = require("cors")
 const mongodb = require("mongodb");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const mongoClient = mongodb.MongoClient;
 const dotenv = require("dotenv").config()
 const URL = process.env.DB;
@@ -102,8 +104,23 @@ app.use(cors({
 //     }
 // ]
 
+let authenticate = (req, res, next) => {
+    if (req.headers.authorization) {
+        try {
+            let decode = jwt.verify(req.headers.authorization, process.env.SECRET)
+            if (decode) {
+                next()
+            }
+        } catch (error) {
+            res.status(401).json({ message: "Unauthorized" })
+        }
 
-app.get("/iphone", async function (req, res) {
+    } else {
+        res.status(401).json({ message: "Unauthorized" })
+    }
+}
+
+app.get("/iphone", authenticate, async function (req, res) {
 
 
     try {
@@ -123,9 +140,9 @@ app.get("/iphone", async function (req, res) {
 
 
     // res.json(users);
-})
+});
 
-app.post("/iphone", async function (req, res) {
+app.post("/iphone",authenticate, async function (req, res) {
 
     try {
         const connection = await mongoClient.connect(URL)
@@ -136,7 +153,7 @@ app.post("/iphone", async function (req, res) {
 
         await connection.close()
 
-        res.json({message : "Data inserted"})
+        res.json({ message: "Data inserted" })
 
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" })
@@ -147,6 +164,60 @@ app.post("/iphone", async function (req, res) {
     // users.push(req.body)
     // console.log(req.body)
     // res.json({message : "Product created Successfully"})
+});
+
+
+app.post("/register", async function (req, res) {
+
+    try {
+
+        const connection = await mongoClient.connect(URL)
+
+        const db = connection.db(DB)
+
+        let salt = await bcrypt.genSalt(10);
+        let hash = await bcrypt.hash(req.body.password, salt)
+
+        req.body.password = hash
+
+        await db.collection("users").insertOne(req.body)
+
+        await connection.close()
+
+        res.json({ message: "User registered successfully" })
+
+    } catch (error) {
+        res.status(401).json({message : "Something went wrong"})
+    }
+});
+
+app.post("/login", async function (req, res) {
+
+    try {
+
+        const connection = await mongoClient.connect(URL)
+
+        const db = connection.db(DB)
+
+        let user = await db.collection("users").findOne({ email: req.body.email })
+
+        if (user) {
+            let compare = await bcrypt.compare(req.body.password, user.password)
+            if (compare) {
+                let token = jwt.sign({ _id: user._id }, process.env.SECRET, { expiresIn: "1m" });
+                res.json({ token })
+            } else {
+                res.json({ message: "Email/Password is incorrect" })
+            }
+        } else {
+            res.status(401).json({ message: "Email/Password is incorrect" })
+        }
+
+        await connection.close()
+
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" })
+    }
 })
 
 
