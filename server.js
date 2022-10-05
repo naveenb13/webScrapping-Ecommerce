@@ -204,7 +204,7 @@ app.post("/login", async function (req, res) {
         if (user) {
             let compare = await bcrypt.compare(req.body.password, user.password);
             if (compare) {
-                let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "1m"});
+                let token = jwt.sign({ _id: user._id },process.env.SECRET, { expiresIn: "10m"});
                 res.json({token});
             } else {
                 res.status(401).json({ message: "Email/Password is incorrect" });
