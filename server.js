@@ -104,23 +104,23 @@ app.use(cors({
 //     }
 // ]
 
-let authenticate = (req, res, next) => {
-    if (req.headers.authorization) {
-        try {
-            let decode = jwt.verify(req.headers.authorization, process.env.SECRET)
-            if (decode) {
-                next()
-            }
-        } catch (error) {
-            res.status(401).json({ message: "Unauthorized" })
-        }
+// let authenticate = (req, res, next) => {
+//     if (req.headers.authorization) {
+//         try {
+//             let decode = jwt.verify(req.headers.authorization, process.env.SECRET)
+//             if (decode) {
+//                 next()
+//             }
+//         } catch (error) {
+//             res.status(401).json({ message: "Unauthorized" })
+//         }
 
-    } else {
-        res.status(401).json({ message: "Unauthorized" })
-    }
-}
+//     } else {
+//         res.status(401).json({ message: "Unauthorized" })
+//     }
+// }
 
-app.get("/iphone", authenticate, async function (req, res) {
+app.get("/iphone", async function (req, res) {
 
 
     try {
@@ -142,7 +142,7 @@ app.get("/iphone", authenticate, async function (req, res) {
     // res.json(users);
 });
 
-app.post("/iphone",authenticate, async function (req, res) {
+app.post("/iphone", async function (req, res) {
 
     try {
         const connection = await mongoClient.connect(URL)
@@ -187,7 +187,7 @@ app.post("/register", async function (req, res) {
         res.json({ message: "User registered successfully" })
 
     } catch (error) {
-        res.status(401).json({message : "Something went wrong"})
+        res.status(401).json({ message: "Something went wrong" })
     }
 });
 
@@ -218,7 +218,7 @@ app.post("/login", async function (req, res) {
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" })
     }
-})
+});
 
 
 
